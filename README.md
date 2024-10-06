@@ -40,7 +40,7 @@ pip install -r requirements.txt
 .env 파일을 생성하고 다음 내용을 추가:
 
 ```
-CopyUPSTAGE_API_KEY=your_upstage_api_key_here
+UPSTAGE_API_KEY=your_upstage_api_key_here
 ```
 
 
