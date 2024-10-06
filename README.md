@@ -7,11 +7,9 @@
 Gen AI의 의존도가 높은 자기소개서 판별
 
 
-
 ## Target Audience
 
 기업 인사팀, 채용 담당자
-
 
 
 ## 주요 기능 : Gen AI로 생성된 자기소개서 탐지 및 분석
@@ -21,7 +19,6 @@ Gen AI의 의존도가 높은 자기소개서 판별
  - Gen AI 생성 가능성을 백분율(%)로 제시
  - 주요 키워드 추출 및 시각화
  - 텍스트 통계 정보 제공 (단어 수, 문자 수, 문장 수)
-
 
 
 ## Installation
@@ -57,7 +54,6 @@ streamlit our_demo/run app_v01.py
 ## 폴더 구조
 
 ```
-
 Copygpt-text-detector/
 │
 ├── app.py                  # 메인 Streamlit 애플리케이션
@@ -72,8 +68,8 @@ Copygpt-text-detector/
     ├── noun_list.txt
     ├── verb_list.txt
     └── adjective_list.txt
-    
 ```
+
 
 ## 주의사항
 
