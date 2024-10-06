@@ -89,19 +89,19 @@ def calculate_korean_gpt_probability(text):
     sentences = re.split(r'[.!?]+', text)
     sentences = [s.strip() for s in sentences if s.strip()]  # 빈 문장 제거
     sentences_with_many_commas = [s for s in sentences if s.count(',') >= 2]
-    if len(sentences_with_many_commas) / len(sentences) > 0.1:  # 10% 이상의 문장이 쉼표 2개 이상이면
+    if len(sentences_with_many_commas) >= 1:  # 10% 이상의 문장이 쉼표 2개 이상이면
         score += 20
 
     # 자주 등장하는 부분 체크
     korean_connectives = ['시절', '맡았으며', '특히', '우선', '입사 후', '에서,', '이에 따라', '바탕으로', '저는', '고,', '이는', '통해']
     connective_count = sum(text.count(word) for word in korean_connectives)
-    if connective_count > 2 :#* length_factor:  # 텍스트 길이에 비례하여 조정
+    if connective_count >= 2 :#* length_factor:  # 텍스트 길이에 비례하여 조정
         score += 35
 
     # 긴 문장 체크
     if sentences:
         long_sentences = [s for s in sentences if len(s.split()) > 20]
-        if len(long_sentences) > len(sentences) :#* length_factor / 2:  # 텍스트 길이에 비례하여 조정
+        if len(long_sentences) >= len(sentences) * 0.3 :#* length_factor / 2:  # 텍스트 길이에 비례하여 조정
             score += 15
 
     # 부사 사용 체크
