@@ -35,7 +35,7 @@ def korean_sentence_tokenize(text):
     return [sent.strip() for sent in sentences if sent.strip()]
 
 # Prompt file path
-DETECTION_PROMPT_FILE = "/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/demo_eunche/detection_prompt.txt"
+DETECTION_PROMPT_FILE = "/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/our_demo/detection_prompt.txt"
 
 # Read prompt from file
 def load_detection_prompt():
@@ -64,10 +64,10 @@ def read_word_list(file_path):
         return []
 
 # 파일 경로 설정 (실제 파일 경로로 수정 필요)
-ADVERB_FILE = "/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/demo_eunche/textmining/adverb_list.txt"
-NOUN_FILE = "/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/demo_eunche/textmining/noun_list.txt"
-VERB_FILE = "/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/demo_eunche/textmining/verb_list.txt"
-ADJECTIVE_FILE = "/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/demo_eunche/textmining/adjective_list.txt"
+ADVERB_FILE = "/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/our_demo/textmining/adverb_list.txt"
+NOUN_FILE = "/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/our_demo/textmining/noun_list.txt"
+VERB_FILE = "/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/our_demo/textmining/verb_list.txt"
+ADJECTIVE_FILE = "/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/our_demo/textmining/adjective_list.txt"
 
 # 단어 리스트 로드
 ADVERBS = read_word_list(ADVERB_FILE)
@@ -258,8 +258,8 @@ def main_app():
         st.markdown("---")
     
         # 학교 로고 불러오기
-        school_logo = Image.open("/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/demo_eunche/static/korea_univ.png")
-        company_logo = Image.open("/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/demo_eunche/static/upstage.png")
+        school_logo = Image.open("/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/our_demo/static/korea_univ.png")
+        company_logo = Image.open("/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/our_demo/static/upstage.png")
         
         # 로고를 Base64로 인코딩한 후 HTML로 삽입
         school_logo_base64 = image_to_base64(school_logo)
