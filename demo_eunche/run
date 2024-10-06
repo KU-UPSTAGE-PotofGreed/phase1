@@ -1,0 +1,156 @@
+import os
+import re
+import streamlit as st
+from dotenv import load_dotenv
+from langchain_upstage import ChatUpstage
+import plotly.graph_objects as go
+from textblob import TextBlob
+
+# Load environment variables
+load_dotenv()
+
+# Get Upstage API Key
+UPSTAGE_API_KEY = os.getenv("UPSTAGE_API_KEY")
+
+# Check if API key is available
+if not UPSTAGE_API_KEY:
+    st.error("UPSTAGE_API_KEY is not set in the environment variables.")
+    st.stop()
+
+# Initialize Upstage Chat model
+chat = ChatUpstage(upstage_api_key=UPSTAGE_API_KEY)
+
+# Prompt file path
+DETECTION_PROMPT_FILE = "/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/demo_eunche/detection_prompt.txt"
+
+# Read prompt from file
+def load_detection_prompt():
+    try:
+        with open(DETECTION_PROMPT_FILE, 'r', encoding='utf-8') as file:
+            prompt_template = file.read()
+        return prompt_template
+    except FileNotFoundError:
+        st.error(f"{DETECTION_PROMPT_FILE} 파일을 찾을 수 없습니다.")
+        return None
+
+# Calculate GPT generation probability
+def calculate_gpt_probability(text):
+    score = 0
+    total_checks = 4
+
+    if len(text) > 100:
+        score += 1
+    complex_words = ['therefore', 'furthermore', 'consequently', 'nevertheless']
+    if any(word in text.lower() for word in complex_words):
+        score += 1
+    sentences = re.split(r'[.!?]+', text)
+    if len(set([len(s.split()) for s in sentences if s])) > 2:
+        score += 1
+    if re.search(r'\d+\s*(kg|km|m|cm)', text):
+        score += 1
+
+    return (score / total_checks) * 100
+
+# Text detection and AI response processing function
+def upstage_text_detection_with_prompt(user_input):
+    prompt_template = load_detection_prompt()
+    
+    if prompt_template is None:
+        return "프롬프트 파일을 로드할 수 없습니다.", None
+
+    prompt = prompt_template.format(input_text=user_input)
+    response = chat([{"role": "user", "content": prompt}])
+
+    try:
+        full_response = response.content
+        probability = calculate_gpt_probability(user_input)
+    except AttributeError:
+        full_response = "응답 생성 중 오류가 발생했습니다."
+        probability = None
+
+    return full_response, probability
+
+# Create radar chart
+def create_radar_chart(probability):
+    categories = ['Length', 'Complexity', 'Structure', 'Patterns']
+    fig = go.Figure(data=go.Scatterpolar(
+      r=[probability/100*4] * 4,
+      theta=categories,
+      fill='toself'
+    ))
+    fig.update_layout(
+      polar=dict(radialaxis=dict(visible=True, range=[0, 4])),
+      showlegend=False
+    )
+    return fig
+
+# Streamlit UI
+def main_app():
+    st.set_page_config(page_title="GPT 감지 대시보드", layout="wide")
+
+    # Initialize session state for history
+    if 'history' not in st.session_state:
+        st.session_state.history = []
+
+    # Sidebar for session history
+    st.sidebar.title("세션 히스토리")
+    for idx, item in enumerate(st.session_state.history):
+        if st.sidebar.button(f"#{idx+1}: {item['input'][:20]}...", key=f"history_{idx}"):
+            st.session_state.selected_history = item
+
+    st.title("🕵️‍♂️ GPT 감지 및 분석 대시보드")
+
+    # Input area
+    user_input = st.text_area("텍스트를 입력하세요:", placeholder="여기에 분석할 텍스트를 입력하세요...", height=100)
+
+    if st.button("🔍 GPT 감지 및 분석 시작"):
+        if user_input:
+            with st.spinner('분석 중...'):
+                detection_result, probability = upstage_text_detection_with_prompt(user_input)
+            
+            # Add to history
+            st.session_state.history.append({
+                'input': user_input,
+                'result': detection_result,
+                'probability': probability
+            })
+            st.session_state.selected_history = st.session_state.history[-1]
+
+    # Display selected history or latest result
+    if hasattr(st.session_state, 'selected_history'):
+        selected = st.session_state.selected_history
+        st.subheader("📊 분석 결과")
+        st.write(selected['result'])
+
+        if selected['probability'] is not None:
+            st.metric(label="GPT 생성 가능성", value=f"{selected['probability']:.2f}%")
+        else:
+            st.error("확률 정보를 계산하지 못했습니다.")
+
+        col1, col2 = st.columns([1, 1])
+
+        with col1:
+            st.subheader("📈 상세 분석")
+            fig = create_radar_chart(selected['probability'])
+            st.plotly_chart(fig, use_container_width=True)
+
+        with col2:
+            st.subheader("📝 텍스트 통계")
+            word_count = len(selected['input'].split())
+            char_count = len(selected['input'])
+            sentence_count = len(re.findall(r'\w+[.!?]', selected['input']))
+            
+            st.write(f"단어 수: {word_count}")
+            st.write(f"문자 수: {char_count}")
+            st.write(f"문장 수: {sentence_count}")
+
+            blob = TextBlob(selected['input'])
+            sentiment = blob.sentiment.polarity
+            subjectivity = blob.sentiment.subjectivity
+
+            st.subheader("🎭 감정 분석")
+            st.write(f"감정 점수: {sentiment:.2f} (-1 부정적, 1 긍정적)")
+            st.write(f"주관성 점수: {subjectivity:.2f} (0 객관적, 1 주관적)")
+
+if __name__ == "__main__":
+    main_app()
