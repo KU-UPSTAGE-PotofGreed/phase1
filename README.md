@@ -26,7 +26,8 @@ Gen AI의 의존도가 높은 자기소개서 판별
 #### 1. 저장소 클론:
 
 ```
-pip install -r requirements.txt
+git clone 
+cd gpt-text-detector
 ```
 
 
@@ -54,28 +55,40 @@ streamlit our_demo/run app_v01.py
 ## 폴더 구조
 
 ```
-Copygpt-text-detector/
+Origin-main/
 │
-├── app.py                  # 메인 Streamlit 애플리케이션
-├── detection_prompt.txt    # GPT 탐지 프롬프트
-├── requirements.txt        # 필요한 Python 패키지 목록
-├── .env                    # 환경 변수 파일 (git에 포함하지 않음)
-├── static/                 # 정적 파일 (로고 등)
-│   ├── korea_univ.png
-│   └── upstage.png
-└── textmining/             # 텍스트 마이닝 관련 파일
-    ├── adverb_list.txt
-    ├── noun_list.txt
-    ├── verb_list.txt
-    └── adjective_list.txt
+├── README.md
+└── requirements.txt        # 필요한 Python 패키지 목록
+    ├── .env                    # 환경 변수 파일 (git에 포함하지 않음)
+    ├── app_v01.py              # 메인 Streamlit 애플리케이션
+    ├── detection_prompt.txt    # GPT 탐지 Prompt
+    ├── run
+    ├── threadhold.py
+    ├── static                  # 정적 파일 (로고 등)
+    │   ├── korea_univ.png
+    │   └── upstage.png
+    └── textmining              # 텍스트 마이닝 관련 파일
+        text
+        ├── textmining.ipynb
+        ├── resume_generation.csv
+        ├── adverb_list.txt    
+        ├── adjective_list.txt
+        ├── adverb_list.txt
+        ├── noun_list.txt
+        ├── verb_list.txt
+        └── wordcloud
+            ├── adjective.png
+            ├── adverb.png
+            ├── noun.png
+            └── verb.png
 ```
 
 
 ## 주의사항
 
-이 도구는 100% 정확하지 않을 수 있으며, 결과는 참고용으로만 사용해야 합니다.
-짧은 텍스트나 매우 일반적인 문장의 경우 정확도가 떨어질 수 있습니다.
-API 키를 안전하게 관리하고, 공개 저장소에 업로드하지 않도록 주의하세요.
+- 이 도구는 100% 정확하지 않을 수 있으며, 결과는 참고용으로만 사용해야 합니다.
+- 짧은 텍스트나 매우 일반적인 문장의 경우 정확도가 떨어질 수 있습니다.
+- API 키를 안전하게 관리하고, 공개 저장소에 업로드하지 않도록 주의하세요.
 
 
 ## 감사의 글
