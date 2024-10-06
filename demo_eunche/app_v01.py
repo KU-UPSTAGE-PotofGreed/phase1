@@ -45,19 +45,32 @@ def load_detection_prompt():
         return None
 
 # Calculate GPT generation probability
-def calculate_gpt_probability(text):
+
+def calculate_korean_gpt_probability(text):
     score = 0
     total_checks = 4
 
-    if len(text) > 100:
+    # 쉼표 비율 체크
+    comma_ratio = text.count(',') / len(text) if len(text) > 0 else 0
+    if comma_ratio > 0.05:  # 텍스트 길이의 5% 이상이 쉼표일 경우
         score += 1
-    complex_words = ['therefore', 'furthermore', 'consequently', 'nevertheless']
-    if any(word in text.lower() for word in complex_words):
+
+    # 한국어 접속사 체크
+    korean_connectives = ['그리고', '하지만', '그러나', '또한', '그래서', '따라서', '그러므로', '그런데']
+    connective_count = sum(text.count(word) for word in korean_connectives)
+    if connective_count > 3:  # 3개 이상의 접속사가 있을 경우
         score += 1
+
+    # 긴 문장 체크
     sentences = re.split(r'[.!?]+', text)
-    if len(set([len(s.split()) for s in sentences if s])) > 2:
+    sentences = [s.strip() for s in sentences if s.strip()]  # 빈 문장 제거
+    long_sentences = [s for s in sentences if len(s.split()) > 15]  # 15단어 이상을 긴 문장으로 간주
+    if sentences and len(long_sentences) > len(sentences) / 3:  # 1/3 이상의 문장이 긴 경우
         score += 1
-    if re.search(r'\d+\s*(kg|km|m|cm)', text):
+
+    # 복잡한 단어 체크
+    complex_words = ['따라서', '그럼에도 불구하고', '결과적으로', '그렇지만']
+    if any(word in text for word in complex_words):
         score += 1
 
     return (score / total_checks) * 100
@@ -144,7 +157,7 @@ def main_app():
         """)
         st.subheader("🧑‍💻 만든이")
         st.markdown("""
-        김은채, 이자경, 지현아
+        고려대학교 BA과정 김은채, 이자경, 지현아
         """)
         
         # 맨 아래에 로고 추가를 위한 공간 확보
