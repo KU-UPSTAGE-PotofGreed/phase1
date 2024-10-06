@@ -93,7 +93,7 @@ def calculate_korean_gpt_probability(text):
         score += 20
 
     # 자주 등장하는 부분 체크
-    korean_connectives = ['시절,', '맡았으며,', '특히', '우선,', '입사 후,', '에서,', '이에 따라', '바탕으로', '저는', '고,', '이는', '통해']
+    korean_connectives = ['시절', '맡았으며', '특히', '우선', '입사 후', '에서,', '이에 따라', '바탕으로', '저는', '고,', '이는', '통해']
     connective_count = sum(text.count(word) for word in korean_connectives)
     if connective_count > 2 :#* length_factor:  # 텍스트 길이에 비례하여 조정
         score += 35
