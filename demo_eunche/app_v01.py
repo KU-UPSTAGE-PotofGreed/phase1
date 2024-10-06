@@ -28,6 +28,12 @@ except Exception as e:
     st.error(f"Failed to initialize ChatUpstage: {str(e)}")
     st.stop()
 
+# Korean sentence tokenization function
+def korean_sentence_tokenize(text):
+    pattern = r'(?<=[.!?])\s+|(?<=[.!?])$'
+    sentences = re.split(pattern, text)
+    return [sent.strip() for sent in sentences if sent.strip()]
+
 # Prompt file path
 DETECTION_PROMPT_FILE = "/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/demo_eunche/detection_prompt.txt"
 
@@ -44,36 +50,103 @@ def load_detection_prompt():
         st.error(f"프롬프트 파일 로드 중 오류 발생: {str(e)}")
         return None
 
-# Calculate GPT generation probability
+
+# 파일에서 단어 리스트를 읽어오는 함수
+def read_word_list(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return [word.strip() for word in file.readlines() if word.strip()]
+    except FileNotFoundError:
+        st.error(f"{file_path} 파일을 찾을 수 없습니다.")
+        return []
+    except Exception as e:
+        st.error(f"파일 읽기 중 오류 발생: {str(e)}")
+        return []
+
+# 파일 경로 설정 (실제 파일 경로로 수정 필요)
+ADVERB_FILE = "/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/demo_eunche/textmining/adverb_list.txt"
+NOUN_FILE = "/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/demo_eunche/textmining/noun_list.txt"
+VERB_FILE = "/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/demo_eunche/textmining/verb_list.txt"
+ADJECTIVE_FILE = "/mnt/c/Users/kec91/Desktop/KuUpstage/phase1/demo_eunche/textmining/adjective_list.txt"
+
+# 단어 리스트 로드
+ADVERBS = read_word_list(ADVERB_FILE)
+NOUNS = read_word_list(NOUN_FILE)
+VERBS = read_word_list(VERB_FILE)
+ADJECTIVES = read_word_list(ADJECTIVE_FILE)
+
+
 def calculate_korean_gpt_probability(text):
     score = 0
-    total_checks = 4
+    total_checks = 7  # 체크 항목 수
+    text_length = len(text)
 
-    # 쉼표 비율 체크
-    comma_ratio = text.count(',') / len(text) if len(text) > 0 else 0
-    if comma_ratio > 0.05:  # 텍스트 길이의 5% 이상이 쉼표일 경우
-        score += 1
+    # 텍스트 길이에 따른 기준 설정
+    length_threshold = 500  # 500자를 기준으로 설정
+    length_factor = min(text_length / length_threshold, 1)  # 1을 초과하지 않도록 제한
 
-    # 한국어 접속사 체크
-    korean_connectives = ['그리고', '하지만', '그러나', '또한', '그래서', '따라서', '그러므로', '그런데']
-    connective_count = sum(text.count(word) for word in korean_connectives)
-    if connective_count > 3:  # 3개 이상의 접속사가 있을 경우
-        score += 1
-
-    # 긴 문장 체크
+    # 쉼표 개수 체크 (수정된 부분)
     sentences = re.split(r'[.!?]+', text)
     sentences = [s.strip() for s in sentences if s.strip()]  # 빈 문장 제거
+    sentences_with_many_commas = [s for s in sentences if s.count(',') >= 2]
+    if len(sentences_with_many_commas) > 0:  # 쉼표가 2개 이상인 문장이 하나라도 있으면
+        score += 2
+
+    # 한국어 접속사 체크
+    korean_connectives = ['특히', '우선,', '입사 후,', '에서,', '이에 따라', '바탕으로', '저는', '고,', '이는', '통해']
+    connective_count = sum(text.count(word) for word in korean_connectives)
+    if connective_count > 2 * length_factor:  # 텍스트 길이에 비례하여 조정
+        score += 2
+
+    # 긴 문장 체크
     if sentences:
-        long_sentences = [s for s in sentences if len(s.split()) > 15]  # 15단어 이상을 긴 문장으로 간주
-        if len(long_sentences) > len(sentences) / 3:  # 1/3 이상의 문장이 긴 경우
-            score += 1
+        long_sentences = [s for s in sentences if len(s.split()) > 20]
+        if len(long_sentences) > len(sentences) * length_factor / 3:  # 텍스트 길이에 비례하여 조정
+            score += 2
 
-    # 복잡한 단어 체크
-    complex_words = ['따라서', '그럼에도 불구하고', '결과적으로', '그렇지만']
-    if any(word in text for word in complex_words):
-        score += 1
 
-    return (score / total_checks) * 100
+    # 부사 사용 체크
+    adverb_count = sum(text.count(adverb) for adverb in ADVERBS)
+    if adverb_count >= 2 * length_factor:  # 텍스트 길이에 비례하여 조정
+        score += 2
+
+    # 명사 사용 체크
+    noun_count = sum(text.count(noun) for noun in NOUNS)
+    if noun_count >= 2 * length_factor:  # 텍스트 길이에 비례하여 조정
+        score += 2
+
+    # 동사 사용 체크
+    verb_count = sum(text.count(verb) for verb in VERBS)
+    if verb_count >= 2 * length_factor:  # 텍스트 길이에 비례하여 조정
+        score += 2
+
+    # 형용사 사용 체크
+    adj_count = sum(text.count(adj) for adj in ADJECTIVES)
+    if adj_count >= 2 * length_factor:  # 텍스트 길이에 비례하여 조정
+        score += 2
+
+    # 텍스트 길이에 따른 점수 조정
+    normalized_score = score * (1 - 0.5 * length_factor)  # 텍스트가 길수록 점수를 약간 낮춤
+
+    return (normalized_score / total_checks) * 100
+
+# 텍스트에서 GPT 사용 가능성이 높은 문장 식별 함수
+def identify_gpt_sentences(text, threshold=50):
+    sentences = korean_sentence_tokenize(text)
+    gpt_sentences = []
+    for sentence in sentences:
+        probability = calculate_korean_gpt_probability(sentence)
+        if probability >= threshold:
+            gpt_sentences.append((sentence, probability))
+    return gpt_sentences
+
+# 하이라이트된 텍스트 생성 함수
+def create_highlighted_text(text, gpt_sentences):
+    highlighted_text = text
+    for sentence, probability in sorted(gpt_sentences, key=lambda x: len(x[0]), reverse=True):
+        highlighted_sentence = f'<span style="background-color: rgba(128, 92, 251, {probability/100});">{sentence}</span>'
+        highlighted_text = highlighted_text.replace(sentence, highlighted_sentence)
+    return highlighted_text
 
 # Text detection and AI response processing function
 def upstage_text_detection_with_prompt(user_input):
@@ -100,24 +173,36 @@ def image_to_base64(image):
     img_str = base64.b64encode(buffered.getvalue()).decode()
     return img_str
 
-# Create gauge chart
 def create_gauge_chart(probability):
+    base_color = "#805CFB"
+    grape_color = "rgba(255, 255, 255, 0.8)"
+    lighter_color = "#A389FD"
+    darker_color = "#5C3DB8"
+    
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=probability,
-        title={'text': "GPT 생성 가능성"},
+        title={'text': "GPT 생성 가능성", 'font': {'size': 24}},
         domain={'x': [0, 1], 'y': [0, 1]},
+        number={'font': {'size': 40}, 'suffix': "%"},
         gauge={
-            'axis': {'range': [None, 100]},
-            'bar': {'color': "#8E44AD"},
+            'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': "darkblue"},
+            'bar': {'color': grape_color},
+            'bgcolor': "white",
+            'borderwidth': 0.8,
+            'bordercolor': "gray",
             'steps': [
-                {'range': [0, 50], 'color': "#4A235A"},
-                {'range': [50, 75], 'color': "#6C3483"},
-                {'range': [75, 100], 'color': "#8E44AD"}
+                {'range': [0, 33], 'color': darker_color},
+                {'range': [33, 66], 'color': base_color},
+                {'range': [66, 100], 'color': lighter_color}
             ],
-            'threshold': {'line': {'color': "white", 'width': 0}, 'thickness': 0.75, 'value': 90}
+            'threshold': {
+                'line': {'color': "red", 'width': 4},
+                'thickness': 0.60,
+                'value': 70
+            }
         }))
-    fig.update_layout(height=300)
+    fig.update_layout(height=300, margin=dict(l=10, r=10, t=40, b=10))
     return fig
 
 # 키워드 분석 함수
@@ -129,16 +214,24 @@ def analyze_keywords(text):
 # 키워드 그래프 생성 함수
 def create_keyword_chart(keywords):
     words, counts = zip(*keywords)
+    base_color = "#805CFB"
+    color_scale = [
+        f"rgba({128 + i * 25}, {92 + i * 25}, {251}, {1 - i * 0.15})"
+        for i in range(5)
+    ]
+    
     fig = go.Figure(data=[
         go.Bar(x=counts, y=words, orientation='h', 
-               marker_color=['#8E44AD', '#9B59B6', '#AF7AC5', '#C39BD3', '#D7BDE2'])
+               marker_color=color_scale)
     ])
     
     fig.update_layout(
         title="주요 키워드",
         xaxis_title="출현 빈도",
         yaxis_title="키워드",
-        height=300
+        height=300,
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)'
     )
     fig.update_yaxes(autorange="reversed")
     
@@ -180,6 +273,7 @@ def main_app():
             <p>© 2024 고려대학교 & KU-Upstage. All rights reserved.</p>
         </div>
         """, unsafe_allow_html=True)
+    
     # 메인 컨텐츠
     st.title("🕵️‍♂️ GPT 감지 및 분석 보고서")
 
@@ -191,10 +285,11 @@ def main_app():
     if analyze_button and user_input:
         with st.spinner('분석 중...'):
             detection_result, probability = upstage_text_detection_with_prompt(user_input)
+            gpt_sentences = identify_gpt_sentences(user_input, threshold=30)
 
         # 분석 결과 섹션
         st.header("분석 결과")
-        st.subheader("2.1 GPT 감지 결과")
+        st.subheader("GPT 감지 결과")
         st.info(detection_result)
 
         if probability is not None:
@@ -203,6 +298,19 @@ def main_app():
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.error("확률 정보를 계산하지 못했습니다.")
+
+        # GPT 사용 가능성이 높은 문장 하이라이트
+        if gpt_sentences:
+            st.subheader("GPT 사용 가능성이 높은 부분")
+            highlighted_text = create_highlighted_text(user_input, gpt_sentences)
+            st.markdown(highlighted_text, unsafe_allow_html=True)
+
+            # GPT 사용 가능성이 높은 문장 리스트
+            st.subheader("GPT 사용 가능성이 높은 문장")
+            for sentence, prob in gpt_sentences:
+                st.markdown(f"- {sentence} (확률: {prob:.2f}%)")
+        else:
+            st.info("GPT 사용 가능성이 높은 문장이 발견되지 않았습니다.")
 
         # 텍스트 통계 섹션
         st.header("텍스트 통계")
