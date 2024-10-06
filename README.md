@@ -56,6 +56,8 @@ streamlit our_demo/run app_v01.py
 
 ## 폴더 구조
 
+```
+
 Copygpt-text-detector/
 │
 ├── app.py                  # 메인 Streamlit 애플리케이션
@@ -70,7 +72,8 @@ Copygpt-text-detector/
     ├── noun_list.txt
     ├── verb_list.txt
     └── adjective_list.txt
-
+    
+```
 
 ## 주의사항
 
