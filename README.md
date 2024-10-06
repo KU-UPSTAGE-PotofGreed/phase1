@@ -5,8 +5,10 @@
 ## Goal
 Gen AI의 의존도가 높은 자기소개서 판별
 
+
 ## Target Audience
 기업 인사팀, 채용 담당자
+
 
 ## 주요 기능 : Gen AI로 생성된 자기소개서 탐지 및 분석
  - Gen AI 탐지 결과 True/False 제공
@@ -15,8 +17,22 @@ Gen AI의 의존도가 높은 자기소개서 판별
  - 주요 키워드 추출 및 시각화
  - 텍스트 통계 정보 제공 (단어 수, 문자 수, 문장 수)
 
+
 ## Installation
-#### 필요한 패키지 설치
-'''
+#### 1. 저장소 클론:
+
+```
 pip install -r requirements.txt
+```
+
+#### 2. 필요한 패키지 설치
+
+```
+pip install -r requirements.txt
+```
+
+#### 3. 환경변수 설정
+.env 파일을 생성하고 다음 내용을 추가:
+'''
+CopyUPSTAGE_API_KEY=your_upstage_api_key_here
 '''
