@@ -8,7 +8,7 @@ from collections import Counter
 from PIL import Image
 import base64
 from io import BytesIO
-
+from langchain.schema import HumanMessage
 
 # Load environment variables
 load_dotenv()
@@ -45,7 +45,6 @@ def load_detection_prompt():
         return None
 
 # Calculate GPT generation probability
-
 def calculate_korean_gpt_probability(text):
     score = 0
     total_checks = 4
@@ -64,9 +63,10 @@ def calculate_korean_gpt_probability(text):
     # 긴 문장 체크
     sentences = re.split(r'[.!?]+', text)
     sentences = [s.strip() for s in sentences if s.strip()]  # 빈 문장 제거
-    long_sentences = [s for s in sentences if len(s.split()) > 15]  # 15단어 이상을 긴 문장으로 간주
-    if sentences and len(long_sentences) > len(sentences) / 3:  # 1/3 이상의 문장이 긴 경우
-        score += 1
+    if sentences:
+        long_sentences = [s for s in sentences if len(s.split()) > 15]  # 15단어 이상을 긴 문장으로 간주
+        if len(long_sentences) > len(sentences) / 3:  # 1/3 이상의 문장이 긴 경우
+            score += 1
 
     # 복잡한 단어 체크
     complex_words = ['따라서', '그럼에도 불구하고', '결과적으로', '그렇지만']
@@ -84,9 +84,9 @@ def upstage_text_detection_with_prompt(user_input):
 
     prompt = prompt_template.format(input_text=user_input)
     try:
-        response = chat([{"role": "user", "content": prompt}])
+        response = chat.invoke([HumanMessage(content=prompt)])
         full_response = response.content
-        probability = calculate_gpt_probability(user_input)
+        probability = calculate_korean_gpt_probability(user_input)
     except Exception as e:
         full_response = f"응답 생성 중 오류가 발생했습니다: {str(e)}"
         probability = None
@@ -99,7 +99,6 @@ def image_to_base64(image):
     image.save(buffered, format="PNG")
     img_str = base64.b64encode(buffered.getvalue()).decode()
     return img_str
-
 
 # Create gauge chart
 def create_gauge_chart(probability):
