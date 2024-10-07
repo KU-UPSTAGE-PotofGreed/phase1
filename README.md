@@ -2,6 +2,8 @@
 
 이 프로젝트는 Upstage의 Solar 모델을 사용하여 개발되었으며, 주로 한국어 자기소개서 텍스트를 대상으로 합니다. Gen AI로 생성된 텍스트를 탐지하고 분석하는 Streamlit 기반의 웹 어플리케이션입니다. 
 
+![image](https://github.com/user-attachments/assets/b539c94f-6b16-47d2-b193-62172d6cc92f)
+
 ## Goal
 
 Gen AI의 의존도가 높은 자기소개서 판별
@@ -56,33 +58,38 @@ streamlit our_demo/run app_v01.py
 
 ```
 Origin-main/
+└── our_demo                        # 데모파일 모음    
+│   ├── .env                        # 환경 변수 파일 (git에 포함하지 않음)
+│   ├── app_v01.py                  # 메인 Streamlit 애플리케이션
+│   ├── detection_prompt.txt        # GPT 탐지 Prompt
+│   ├── threadhold.py               # Threadhold 확인을 위한 테스트 py
+│   ├── Generation_file             # GenAI 생성 자기소개서 모음
+│   │   ├── resume_generation.csv   # GenAI 생성 자기소개서리스트
+│   │   └── test.csv                # threadhold 확인을 위한 excel
+│   ├── static                      # 정적 파일 (로고 등)
+│   │   ├── korea_univ.png
+│   │   └── upstage.png
+│   └── textmining                  # 텍스트 마이닝 관련 파일
+│       text
+│       ├── textmining.ipynb
+│       ├── resume_generation.csv
+│       ├── adverb_list.txt    
+│       ├── adjective_list.txt
+│       ├── adverb_list.txt
+│       ├── noun_list.txt
+│       ├── verb_list.txt
+│       └── wordcloud
+│           ├── adjective.png
+│           ├── adverb.png
+│           ├── noun.png
+│           └── verb.png
 │
+├── LLM Innovators Challenge_ 도파밍 (김은채, 이자경, 지현아).pdf  #제출 ppt 
+├── 데모영상.mp4                                                   #제출 영상
 ├── README.md
-└── requirements.txt        # 필요한 Python 패키지 목록
-    ├── .env                    # 환경 변수 파일 (git에 포함하지 않음)
-    ├── app_v01.py              # 메인 Streamlit 애플리케이션
-    ├── detection_prompt.txt    # GPT 탐지 Prompt
-    ├── run
-    ├── threadhold.py
-    ├── static                  # 정적 파일 (로고 등)
-    │   ├── korea_univ.png
-    │   └── upstage.png
-    └── textmining              # 텍스트 마이닝 관련 파일
-        text
-        ├── textmining.ipynb
-        ├── resume_generation.csv
-        ├── adverb_list.txt    
-        ├── adjective_list.txt
-        ├── adverb_list.txt
-        ├── noun_list.txt
-        ├── verb_list.txt
-        └── wordcloud
-            ├── adjective.png
-            ├── adverb.png
-            ├── noun.png
-            └── verb.png
-```
+└── requirements.txt                              # 필요한 Python 패키지 목록
 
+```
 
 ## 주의사항
 
