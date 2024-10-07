@@ -2,8 +2,6 @@
 
 이 프로젝트는 Upstage의 Solar 모델을 사용하여 개발되었으며, 주로 한국어 자기소개서 텍스트를 대상으로 합니다. Gen AI로 생성된 텍스트를 탐지하고 분석하는 Streamlit 기반의 웹 어플리케이션입니다. 
 
-![image](https://github.com/user-attachments/assets/adc4f640-a15b-49d8-b745-3e79c050d209)
-
 ## Goal
 
 Gen AI의 의존도가 높은 자기소개서 판별
