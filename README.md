@@ -1,5 +1,9 @@
 # 📝 Filtering AI : AI 자소서를 잡아라
 
+
+https://github.com/user-attachments/assets/5b72a15f-cca8-4466-b488-e48a7628cf52
+
+
 이 프로젝트는 Upstage의 Solar 모델을 사용하여 개발되었으며, 주로 한국어 자기소개서 텍스트를 대상으로 합니다. Gen AI로 생성된 텍스트를 탐지하고 분석하는 Streamlit 기반의 웹 어플리케이션입니다. 
 
 ## Goal
